@@ -3,7 +3,7 @@ permalink:      /:year-:month-:day/:title
 
 # Setup
 title:          boychaboy
-baseurl:        "http://boychaboy.github.io"
+baseurl:        ""
 url:            "http://boychaboy.github.io"
 
 # Assets

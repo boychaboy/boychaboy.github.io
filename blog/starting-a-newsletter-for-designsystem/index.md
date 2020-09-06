@@ -1,13 +1,13 @@
 ---
 layout: post
-title:  "디자인 시스템을 잘 만들고 싶다면? 뉴스레터를 시작하라"
-subtitle: "'Design Systems'의 아티클 01"
-type: "Translation & Summary"
+title:  "NAVER AI RUSH 2020"
+subtitle: "네이버 AI 챌린지 1등 후기"
+type: "Review"
 blog: true
 text: true
-author: "Jihye Leee"
+author: "boychaboy"
 post-header: true
-header-img: "img/header.jpg"
+header-img: "img/thumb.png"
 order: 10
 ---
 

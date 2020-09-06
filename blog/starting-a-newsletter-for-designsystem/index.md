@@ -1,14 +1,14 @@
 ---
 layout: post
 title:  "NAVER AI RUSH 2020"
-subtitle: "네이버 AI 챌린지 1등 후기"
-type: "Review"
+subtitle: "네이버 AI 챌린지 후기"
+type: "#NLP #Competition"
 blog: true
 text: true
 author: "boychaboy"
 post-header: true
 header-img: "img/thumb.png"
-order: 10
+order: 1
 ---
 
 _원문 아티클의 일부를 요약, 번역한 글로 [Design Systems](http://designsystems.com/) 사이트를 운영하는 [Figma](https://www.figma.com/)의 허락을 받고 게재하였다. 번역이 엉성할 수 있기에 원문도 꼭 읽어보기를 추천한다._

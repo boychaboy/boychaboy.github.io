@@ -19,7 +19,6 @@ description: Jeoung Younghun, NLP Researcher
             <div class="underline"></div>
         </div>.
     </h1>
-    <h2 class="intro">👦🏻 자연어처리와 음악</h2>
 </section>
 </div>
 {% include resume.html %}

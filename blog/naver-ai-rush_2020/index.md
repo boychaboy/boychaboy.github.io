@@ -96,7 +96,7 @@ class TextCNN(nn.Module):
 ​        final_out = self.fc(final_feature_map)
 ​        return self.sigmoid(final_out)
 
-{% end highlight %}
+{% endhighlight %}
 
 ## Bi-LSTM + CNN
 
@@ -164,7 +164,7 @@ class LSTM_CNN(nn.Module):
 ​        
 ​        return x
 
-{% end highlight %}
+{% endhighlight %}
 
 # 4. Ensemble
 

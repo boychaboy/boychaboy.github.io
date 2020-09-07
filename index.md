@@ -2,7 +2,7 @@
 layout: default
 title: "Boychaboy"
 main: true
-subtitle: Engineer, Designer, and Musician
+subtitle: NLP Researcher and Musician
 description: Jeoung Younghun, NLP Researcher
 ---
 <div class="intro-animation">

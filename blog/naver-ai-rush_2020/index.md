@@ -188,7 +188,7 @@ class LSTM_CNN(nn.Module):
 
 방법은 간단하다. 아래 예시를 보자. 
 
-{% hightlight shell %}
+{% highlight shell %}
 #!/bin/bash
 
 model=$1

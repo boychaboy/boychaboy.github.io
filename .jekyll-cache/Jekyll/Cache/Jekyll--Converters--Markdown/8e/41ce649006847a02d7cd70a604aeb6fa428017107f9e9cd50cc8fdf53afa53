@@ -1,0 +1,323 @@
+I"M�<h1 id="0-ai-rush란">0. AI RUSH란?</h1>
+
+<p>Naver에서 기획한 <a href="https://campaign.naver.com/airush/">AI 프로젝트 챌린지</a>로 2020년 7월 13일부터 8월 27일까지 진행되었다. 서류 심사 그리고 코딩테스트를 거쳐야 본격적인 AI 과제에 참여할 수 있었다. AI 과제는 1차, 2차로 나누어 진행됐다. 1차는 NLP와 Vision 과제가 하나씩 나왔는데, 각 과제 상위 25명만 2차에 진출할 수 있었다. 2차 과제는 NLP와 Vision 뿐만아니라 Speech, Anomaly detection 등 다양한 주제로 구성되어있었다. 필자는 1차에서 NLP 과제를 수행했는데 운 좋게도 2라운드에 진출하였고, 2차에서 <em>공수래공수거</em> 라는 팀이름으로 Grammatical error correction와 Spam mail classification 두 가지 과제에 참여했다. 결국 최종 결과로 <strong>GEC 과제에서 3등</strong>, <strong>Spam 과제에서 1등</strong>을 기록했다. 이 포스팅에서는 정신 없이 앞만 보고 달려온 한달 남짓을 되돌아보면서 우리가 SPAM 과제에 어떻게 접근했는지를 최대한 가감없이 정리해보려고 한다.</p>
+
+<h1 id="1-스팸-메일-분류">1. 스팸 메일 분류</h1>
+
+<p>메일의 제목과 본문을 보고 스팸 여부를 판정하는 과제이다. 학습 데이터는 총 <code class="language-plaintext highlighter-rouge">131,880</code>개로, 이 중 <code class="language-plaintext highlighter-rouge">7,310</code>개가 스팸 메일이었다. 메일은 제목과 본문이 구분 되어있는 형태였으며 아래와 같이 네이버에서 사용하는 토크나이저에 의해서 숫자로 인코딩되어있었다. 제목과 본문은 <TAB>키로 구분되어 있었고 데이터를 관찰한 결과 '6981'이 온점, '0'이 <UNK>라는 것도 알 수 있었다. 그리고 각 데이터마다 0(ham) 또는 1(spam)로 구분된 정답 label이 있었다.</UNK></TAB></p>
+
+<p><img src="./img/data.png" alt="Data Structure" /></p>
+
+<p>평가는 F1 score 통해서 진행되었다. 기본적으로 주어진 Baseline의 성능은 Validation이 <code class="language-plaintext highlighter-rouge">0.937</code>, Test가 <code class="language-plaintext highlighter-rouge">0.815</code>이였다. 본문이 각각 GRU를 통과하고 마지막에 Linear layer를 거쳐서 예측을 하는 아주 간단한 구조의 모델이었다. 매주 새로운 Test set에 대해서 평가가 진행되었고, 우리는 약 3주에 걸쳐서 이 성능을 최대한으로 끌어내야 했다. 결국 최종 제출 당시 Validation은 <code class="language-plaintext highlighter-rouge">0.974</code>, Test는 <code class="language-plaintext highlighter-rouge">0.8445</code> 를 기록하면서 1등으로 대회를 마무리했다. 아래는 Baseline 모델의 구조이다.</p>
+
+<p><img src="./img/model.png" alt="Model Structure" /></p>
+
+<h1 id="2-계획-세우기">2. 계획 세우기</h1>
+
+<p>시간이 무한정 주어지지 않았으므로 해볼 수 있는 것들의 우선순위를 정해야 했다. 우리 팀이 생각했을 때 꼭 해야할 것들은 다음과 같았다.</p>
+
+<ul>
+  <li>Baseline code
+    <ul>
+      <li>기본적으로 주어진 Baseline 코드가 어떻게 짜여있는지, 코드에 오류는 없는지 확인한다.</li>
+    </ul>
+  </li>
+  <li>Data Augmentation
+    <ul>
+      <li>데이터를 추가로 확보할 수 는 없는 상황이므로, 기존의 데이터에 Noise를 추가하는 등 데이터를 augment 해서 사용할 수 있는 방법을 적용해본다.</li>
+    </ul>
+  </li>
+  <li>Modeling
+    <ul>
+      <li>기존에 구현되어있는 GRU기반 Baseline 이외에 다양한 모델들을 적용하여 실험해본다.</li>
+    </ul>
+  </li>
+  <li>Ensemble ⚡️
+    <ul>
+      <li>Competition 가장 중요하다고도 할 수 있는 모델 앙상블을 NSML 환경에 적용할 수 있도록 구현한다.</li>
+    </ul>
+  </li>
+  <li>Hyperparamter Tuning
+    <ul>
+      <li>남는 시간과 GPU를 효율적으로 활용해서 최대한 기존 성능을 끌어올릴 수 있는 파라미터를 찾는다.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>결론적으로 말하면 성능 향상에 가장 도움이 되었던 것은  <strong>Modeling - Ensemble - Hyperparamter Tuning - Baseline Code - Data Augmentation</strong> 였고, 아래부터는 이 순서대로 어떻게 프로젝트를 진행했는지 하나씩 살펴보도록 하겠다.</p>
+
+<h1 id="3-modeling">3. Modeling</h1>
+
+<blockquote>
+  <p>최대한 다양한 모델을 실험해본다.</p>
+</blockquote>
+
+<p>우선 본 Task는 이미 데이터가 Tokenizing을 거친 형태로 주어졌기 때문에 BERT를 비롯한 Pre-trained 모델을 사용할 수 없었다. 이 부분이 사실 가장 큰 obstacle이었는데, NLP의 최근 2년간 기술 발전은 대부분 Pre-training을 사용하는 것에서부터 시작한다고 해도 과언이 아니기 때문이다. 따라서 우리 팀은 스팸 메일 분류에 적합한 모델을 찾기 위해서 Text Classification<sup id="fnref:1" role="doc-noteref"><a href="#fn:1" class="footnote">1</a></sup> 에 사용되는 모델들을 찾아보기 시작했다. Bi-LSTM부터 시작해서 Transformer Encoder 모델까지 한번이라도 들어본 모델은 전부 구현해서 실험해보았다. 구현하여 실험한 모델 중 가장 성능이 좋았고 실제로 제출에 사용된 모델의 구조와 코드를 적어보았다.</p>
+
+<h2 id="textcnn-️">TextCNN ⭐️</h2>
+
+<p><img src="./img/textcnn.png" alt="TextCNN" /></p>
+
+<ul>
+  <li>Yoon Kim 저자의 <a href="https://arxiv.org/abs/1408.5882">Convolutional Neural Networks for Sentence Classification</a> 논문에서 제안된 모델</li>
+  <li>학습도 빠르고 성능도 가장 좋았다. 스팸 메일 분류에 가장 적합한 모델인 것으로 보인다.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">TextCNN</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">(</span><span class="n">TextCNN</span><span class="p">,</span> <span class="bp">self</span><span class="p">).</span><span class="n">__init__</span><span class="p">()</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">args</span> <span class="o">=</span> <span class="n">args</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">embeddings</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Embedding</span><span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">vocab_size</span><span class="p">,</span> <span class="n">args</span><span class="p">.</span><span class="n">embedding_dim</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">conv1</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">Conv1d</span><span class="p">(</span><span class="n">in_channels</span><span class="o">=</span><span class="n">args</span><span class="p">.</span><span class="n">embedding_dim</span><span class="p">,</span> <span class="n">out_channels</span><span class="o">=</span><span class="n">args</span><span class="p">.</span><span class="n">num_channels</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="n">args</span><span class="p">.</span><span class="n">kernel_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">ReLU</span><span class="p">(),</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">MaxPool1d</span><span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">max_title</span> <span class="o">+</span> <span class="n">args</span><span class="p">.</span><span class="n">max_content</span> <span class="o">-</span> <span class="n">args</span><span class="p">.</span><span class="n">kernel_size</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">conv2</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">Conv1d</span><span class="p">(</span><span class="n">in_channels</span><span class="o">=</span><span class="n">args</span><span class="p">.</span><span class="n">embedding_dim</span><span class="p">,</span> <span class="n">out_channels</span><span class="o">=</span><span class="n">args</span><span class="p">.</span><span class="n">num_channels</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="n">args</span><span class="p">.</span><span class="n">kernel_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]),</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">ReLU</span><span class="p">(),</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">MaxPool1d</span><span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">max_title</span> <span class="o">+</span> <span class="n">args</span><span class="p">.</span><span class="n">max_content</span> <span class="o">-</span> <span class="n">args</span><span class="p">.</span><span class="n">kernel_size</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">conv3</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Sequential</span><span class="p">(</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">Conv1d</span><span class="p">(</span><span class="n">in_channels</span><span class="o">=</span><span class="n">args</span><span class="p">.</span><span class="n">embedding_dim</span><span class="p">,</span> <span class="n">out_channels</span><span class="o">=</span><span class="n">args</span><span class="p">.</span><span class="n">num_channels</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="n">args</span><span class="p">.</span><span class="n">kernel_size</span><span class="p">[</span><span class="mi">2</span><span class="p">]),</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">ReLU</span><span class="p">(),</span>
+            <span class="n">nn</span><span class="p">.</span><span class="n">MaxPool1d</span><span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">max_title</span> <span class="o">+</span> <span class="n">args</span><span class="p">.</span><span class="n">max_content</span> <span class="o">-</span> <span class="n">args</span><span class="p">.</span><span class="n">kernel_size</span><span class="p">[</span><span class="mi">2</span><span class="p">]</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Dropout</span><span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">dropout</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">fc</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">num_channels</span><span class="o">*</span><span class="nb">len</span><span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">kernel_size</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+        <span class="bp">self</span><span class="p">.</span><span class="n">sigmoid</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Sigmoid</span><span class="p">()</span>
+        
+    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">cat</span><span class="p">((</span><span class="n">title</span><span class="p">,</span> <span class="n">content</span><span class="p">),</span> <span class="mi">1</span><span class="p">).</span><span class="n">transpose</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="err">​</span>        <span class="n">embedded_sent</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">embeddings</span><span class="p">(</span><span class="n">x</span><span class="p">).</span><span class="n">permute</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">,</span><span class="mi">0</span><span class="p">)</span>
+<span class="err">​</span>        <span class="n">embedded_sent</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">embedded_sent</span><span class="p">)</span>
+
+<span class="err">​</span>        <span class="n">conv_out1</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">conv1</span><span class="p">(</span><span class="n">embedded_sent</span><span class="p">).</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="err">​</span>        <span class="n">conv_out2</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">conv2</span><span class="p">(</span><span class="n">embedded_sent</span><span class="p">).</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="err">​</span>        <span class="n">conv_out3</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">conv3</span><span class="p">(</span><span class="n">embedded_sent</span><span class="p">).</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="err">​</span>        
+<span class="err">​</span>        <span class="n">all_out</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">cat</span><span class="p">((</span><span class="n">conv_out1</span><span class="p">,</span> <span class="n">conv_out2</span><span class="p">,</span> <span class="n">conv_out3</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+<span class="err">​</span>        <span class="n">final_feature_map</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">all_out</span><span class="p">)</span>
+<span class="err">​</span>        <span class="n">final_out</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">fc</span><span class="p">(</span><span class="n">final_feature_map</span><span class="p">)</span>
+<span class="err">​</span>        <span class="k">return</span> <span class="bp">self</span><span class="p">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">final_out</span><span class="p">)</span></code></pre></figure>
+
+<h2 id="bi-lstm--cnn">Bi-LSTM + CNN</h2>
+
+<p><img src="./img/kaggle.png" alt="Kaggle" /></p>
+
+<ul>
+  <li>Kaggle competition 중 하나인 <a href="https://www.kaggle.com/c/quora-insincere-questions-classification/overview">Quora Insincere Question Classification</a> 에서 <a href="https://www.kaggle.com/c/quora-insincere-questions-classification/discussion/80568">1등 팀 게시물</a>의 Architecture를 참고했다.</li>
+  <li>학습은 느린 편이었지만 TextCNN에 준하는 성능을 보였다.</li>
+</ul>
+
+<figure class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">class</span> <span class="nc">LSTM_CNN</span><span class="p">(</span><span class="n">nn</span><span class="p">.</span><span class="n">Module</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">args</span><span class="p">):</span>
+        <span class="nb">super</span><span class="p">().</span><span class="n">__init__</span><span class="p">()</span>
+
+<span class="err">​</span>        <span class="bp">self</span><span class="p">.</span><span class="n">vocab_size</span> <span class="o">=</span> <span class="n">args</span><span class="p">.</span><span class="n">vocab_size</span>
+<span class="err">​</span>        <span class="bp">self</span><span class="p">.</span><span class="n">embedding_dim</span> <span class="o">=</span> <span class="n">args</span><span class="p">.</span><span class="n">embedding_dim</span>
+<span class="err">​</span>        <span class="bp">self</span><span class="p">.</span><span class="n">hidden_dim</span> <span class="o">=</span> <span class="n">args</span><span class="p">.</span><span class="n">hidden_dim</span>
+<span class="err">​</span>        <span class="bp">self</span><span class="p">.</span><span class="n">dense</span> <span class="o">=</span> <span class="n">args</span><span class="p">.</span><span class="n">dense</span>
+<span class="err">​</span>        <span class="bp">self</span><span class="p">.</span><span class="n">layers</span> <span class="o">=</span> <span class="n">args</span><span class="p">.</span><span class="n">layers</span>
+<span class="err">​</span>        <span class="bp">self</span><span class="p">.</span><span class="n">dropout_rate</span> <span class="o">=</span> <span class="n">args</span><span class="p">.</span><span class="n">dropout</span>
+<span class="err">​</span>        <span class="bp">self</span><span class="p">.</span><span class="n">filter_size</span> <span class="o">=</span> <span class="mi">1</span>
+
+<span class="err">​</span>        <span class="bp">self</span><span class="p">.</span><span class="n">embedding</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Embedding</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">vocab_size</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">embedding_dim</span><span class="p">,</span> <span class="n">padding_idx</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="err">​</span>        <span class="bp">self</span><span class="p">.</span><span class="n">bilstm</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">LSTM</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">embedding_dim</span><span class="p">,</span> <span class="nb">int</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">hidden_dim</span><span class="o">/</span><span class="mi">2</span><span class="p">),</span> <span class="n">batch_first</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">bidirectional</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+<span class="err">​</span>        <span class="bp">self</span><span class="p">.</span><span class="n">conv1_title</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Sequential</span><span class="p">(</span>
+<span class="err">​</span>            <span class="n">nn</span><span class="p">.</span><span class="n">Conv1d</span><span class="p">(</span><span class="n">in_channels</span><span class="o">=</span><span class="n">args</span><span class="p">.</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">out_channels</span><span class="o">=</span><span class="n">args</span><span class="p">.</span><span class="n">num_channels</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<span class="err">​</span>            <span class="n">nn</span><span class="p">.</span><span class="n">ReLU</span><span class="p">(),</span>
+<span class="err">​</span>            <span class="n">nn</span><span class="p">.</span><span class="n">MaxPool1d</span><span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">max_title</span> <span class="o">-</span> <span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="err">​</span>        <span class="p">)</span>
+<span class="err">​</span>        <span class="bp">self</span><span class="p">.</span><span class="n">conv1_content</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Sequential</span><span class="p">(</span>
+<span class="err">​</span>                <span class="n">nn</span><span class="p">.</span><span class="n">Conv1d</span><span class="p">(</span><span class="n">in_channels</span><span class="o">=</span><span class="n">args</span><span class="p">.</span><span class="n">hidden_dim</span><span class="p">,</span> <span class="n">out_channels</span><span class="o">=</span><span class="n">args</span><span class="p">.</span><span class="n">num_channels</span><span class="p">,</span> <span class="n">kernel_size</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+<span class="err">​</span>            <span class="n">nn</span><span class="p">.</span><span class="n">ReLU</span><span class="p">(),</span>
+<span class="err">​</span>            <span class="n">nn</span><span class="p">.</span><span class="n">MaxPool1d</span><span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">max_content</span> <span class="o">-</span> <span class="mi">1</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+<span class="err">​</span>        <span class="p">)</span>
+
+<span class="err">​</span>        <span class="bp">self</span><span class="p">.</span><span class="n">linear1</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Linear</span><span class="p">(</span><span class="n">args</span><span class="p">.</span><span class="n">num_channels</span> <span class="o">*</span> <span class="mi">2</span><span class="p">,</span> <span class="bp">self</span><span class="p">.</span><span class="n">dense</span><span class="p">)</span>
+<span class="err">​</span>        <span class="bp">self</span><span class="p">.</span><span class="n">linear2</span><span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Linear</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">dense</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="err">​</span>        <span class="bp">self</span><span class="p">.</span><span class="n">sigmoid</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Sigmoid</span><span class="p">()</span>
+<span class="err">​</span>        <span class="bp">self</span><span class="p">.</span><span class="n">dropout</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Dropout</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">dropout_rate</span><span class="p">)</span>
+<span class="err">​</span>        <span class="bp">self</span><span class="p">.</span><span class="n">norm</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">BatchNorm1d</span><span class="p">(</span><span class="bp">self</span><span class="p">.</span><span class="n">dense</span><span class="p">)</span>
+
+<span class="err">​</span>        <span class="bp">self</span><span class="p">.</span><span class="n">softmax</span> <span class="o">=</span> <span class="n">nn</span><span class="p">.</span><span class="n">Softmax</span><span class="p">(</span><span class="n">dim</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+
+<span class="err">​</span>    <span class="k">def</span> <span class="nf">forward</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="p">,</span> <span class="n">content</span><span class="p">):</span>
+<span class="err">​</span>        <span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">embedding</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+<span class="err">​</span>        <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">embedding</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+
+<span class="err">​</span>        <span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+<span class="err">​</span>        <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+
+<span class="err">​</span>        <span class="n">title</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">bilstm</span><span class="p">(</span><span class="n">title</span><span class="p">)</span>
+<span class="err">​</span>        <span class="n">content</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">bilstm</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+
+<span class="err">​</span>        <span class="n">title</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">conv1_title</span><span class="p">(</span><span class="n">title</span><span class="p">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)).</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="err">​</span>        <span class="n">content</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">conv1_content</span><span class="p">(</span><span class="n">content</span><span class="p">.</span><span class="n">transpose</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span><span class="mi">2</span><span class="p">)).</span><span class="n">squeeze</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span>
+<span class="err">​</span>        
+<span class="err">​</span>        <span class="n">x</span> <span class="o">=</span> <span class="n">torch</span><span class="p">.</span><span class="n">cat</span><span class="p">((</span><span class="n">title</span><span class="p">,</span> <span class="n">content</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+<span class="err">​</span>        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">linear1</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="err">​</span>        
+<span class="err">​</span>        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">dropout</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="err">​</span>        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="err">​</span>        
+<span class="err">​</span>        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">linear2</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="err">​</span>        <span class="n">x</span> <span class="o">=</span> <span class="bp">self</span><span class="p">.</span><span class="n">sigmoid</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
+<span class="err">​</span>        
+<span class="err">​</span>        <span class="k">return</span> <span class="n">x</span></code></pre></figure>
+
+<h1 id="4-ensemble">4. Ensemble</h1>
+
+<blockquote>
+  <p>결국 앙상블이 다 했다.</p>
+</blockquote>
+
+<p>앙상블을 구현하는 방법에는 여러가지가 있다.</p>
+
+<ol>
+  <li>여러 모델이 동시에 <strong>역전파</strong>가 일어나도록 하나의 큰 모델을 학습시키는 앙상블</li>
+  <li>각 모델을 통해서 나온 prediction score를 더하여서 최종 prediction score를 계산하는 앙상블</li>
+  <li>각 모델을 예측하도록 한 다음 그 결과를 vote시켜서 최종 답을 결정하는 앙상블</li>
+</ol>
+
+<p>우리 팀은 다양한 실험을 위해서 위의 세 가지 방법 모두를 실험해보았고, 결론적으로 <strong>2번</strong> 방법이 가장 좋은 성능을 내는 것을 확인하였다.</p>
+
+<p>그 다음에는 <strong>다양한 모델</strong> 을 조합하여 어떤 것이 가장 높은 성능을 거두는지를 실험해보았고, 그 결과 7개의 모델을 조합한 앙상블이 가장 성능이 높았다. 앙상블을 해보면서 얻은 결론은 <strong>최대한 다양하고</strong> <strong>서로 다른 데이터로 학습된 모델</strong> 을 앙상블 하는 것이 좋다는 것이다.</p>
+
+<h1 id="5-tuning">5. Tuning</h1>
+
+<blockquote>
+  <p>튜닝은 결국 나 자신과의 싸움이다.</p>
+</blockquote>
+
+<p>무슨말이냐면 결국에 더 많이, 더 오래, 더 잘 정리하면서 튜닝한 사람이 승자라는 것이다. 사실 튜닝하는 과정은 그렇게 재미있지 않기 때문에 끈기가 필요하다. “이 정도면 되겠지”라는 생각으로 멈추고 싶을 때가 많고, “더 오르겠어?”라는 생각이 들 때 쯤 거짓말같이 성능이 더 오르기도 하는게 바로 파라미터 튜닝이다.</p>
+
+<p>이번 대회를 진행하면서 팀원으로부터 튜닝을 할 수 있는 좋은 방법을 한가지 배워서 적용하였고, 본 포스팅에서 이를 소개하려고 한다. 바로 <strong>쉘 스크립트 작성</strong>이다.</p>
+
+<p>방법은 간단하다. 아래 예시를 보자.</p>
+
+<div class="language-shell highlighter-rouge"><div class="highlight"><pre class="highlight"><code><span class="c">#!/bin/bash</span>
+
+<span class="nv">model</span><span class="o">=</span><span class="nv">$1</span>
+<span class="nv">num</span><span class="o">=</span><span class="nv">$2</span>
+<span class="nv">timestamp</span><span class="o">=</span><span class="si">$(</span><span class="nb">date</span> +%m/%d-%H:%M:%S<span class="si">)</span>
+
+<span class="nv">lr</span><span class="o">=(</span>0.0001 0.0002 0.0005<span class="o">)</span>
+<span class="nv">embedding_dim</span><span class="o">=(</span>256 512 1024<span class="o">)</span>
+<span class="nv">dropout</span><span class="o">=(</span>0.2 0.3 0.4<span class="o">)</span>
+<span class="nv">pooling</span><span class="o">=(</span><span class="s2">"mean"</span> <span class="s2">"sum"</span> <span class="s2">"max"</span> <span class="s2">"mean_max"</span><span class="o">)</span>
+
+<span class="k">for </span>i <span class="k">in</span> <span class="si">$(</span><span class="nb">seq </span>0 <span class="nv">$num</span><span class="si">)</span><span class="p">;</span> <span class="k">do
+    </span><span class="nv">lr</span><span class="o">=</span><span class="k">${</span><span class="nv">lr</span><span class="p">[</span><span class="k">$((</span> <span class="nv">$RANDOM</span> <span class="o">%</span> <span class="k">${#</span><span class="nv">lr</span><span class="p">[@]</span><span class="k">}</span> <span class="k">))</span><span class="p">]</span><span class="k">}</span>
+    <span class="nv">embedding_dim</span><span class="o">=</span><span class="k">${</span><span class="nv">embedding_dim</span><span class="p">[</span><span class="k">$((</span> <span class="nv">$RANDOM</span> <span class="o">%</span> <span class="k">${#</span><span class="nv">embedding_dim</span><span class="p">[@]</span><span class="k">}</span> <span class="k">))</span><span class="p">]</span><span class="k">}</span>
+    <span class="nv">dropout</span><span class="o">=</span><span class="k">${</span><span class="nv">dropout</span><span class="p">[</span><span class="k">$((</span> <span class="nv">$RANDOM</span> <span class="o">%</span> <span class="k">${#</span><span class="nv">dropout</span><span class="p">[@]</span><span class="k">}</span> <span class="k">))</span><span class="p">]</span><span class="k">}</span>
+    <span class="nv">pooling</span><span class="o">=</span><span class="k">${</span><span class="nv">pooling</span><span class="p">[</span><span class="k">$((</span> <span class="nv">$RANDOM</span> <span class="o">%</span> <span class="k">${#</span><span class="nv">pooling</span><span class="p">[@]</span><span class="k">}</span> <span class="k">))</span><span class="p">]</span><span class="k">}</span>
+
+    <span class="nb">echo</span> <span class="s2">"-------------------- </span><span class="nv">$i</span><span class="s2"> : </span><span class="nv">$timestamp</span><span class="s2"> --------------------"</span>
+    <span class="nb">echo</span> <span class="s2">"lr : </span><span class="nv">$lr</span><span class="s2">"</span>
+    <span class="nb">echo</span> <span class="s2">"embedding_dim : </span><span class="nv">$embedding_dim</span><span class="s2">"</span>
+    <span class="nb">echo</span> <span class="s2">"dropout : </span><span class="nv">$dropout</span><span class="s2">"</span>
+    <span class="nb">echo</span> <span class="s2">"pooling : </span><span class="nv">$pooling</span><span class="s2">"</span>
+    <span class="nb">echo</span> <span class="s2">""</span>
+
+    nsml run <span class="nt">-g</span> 1 <span class="nt">-d</span> rush7-2 <span class="nt">-a</span> <span class="s2">"</span><span class="se">\</span><span class="s2">
+	--batch_size 256 </span><span class="se">\</span><span class="s2">
+	--model </span><span class="nv">$model</span><span class="s2">
+	--lr </span><span class="nv">$lr</span><span class="s2"> </span><span class="se">\</span><span class="s2">
+	--embedding_dim </span><span class="nv">$embedding_dim</span><span class="s2"> </span><span class="se">\</span><span class="s2">
+	--dropout </span><span class="nv">$dropout</span><span class="s2"> </span><span class="se">\</span><span class="s2">
+	--pooling </span><span class="nv">$pooling</span><span class="s2"> </span><span class="se">\</span><span class="s2">
+	"</span>
+    <span class="nb">sleep </span>60m
+
+    <span class="k">done</span>
+</code></pre></div></div>
+
+<p>위와 같은 스크립트를 실행해놓으면 알아서 <code class="language-plaintext highlighter-rouge">$model</code> 종류에 따라서 <code class="language-plaintext highlighter-rouge">$num</code> 갯수만큼 랜덤한 파라미터로 실험을 진행한다. 본 대회는 nsml<sup id="fnref:2" role="doc-noteref"><a href="#fn:2" class="footnote">2</a></sup> 환경에서 실험을 진행하였기 때문에 실험이 돌아가는 시간만큼 sleep을 해주면 해당 시간을 기다렸다가 알아서 다음 실험을 돌린다. 필자는 하나의 모델을 구현할 때마다 이 쉘 스크립트를 사용해서 20개정도의 랜덤 파라미터로 모델을 실험해보고 성능이 좋지 않다 싶으면 바로 다음 모델로 넘어갔다. 이 랜덤 쉘 스크립트의 최대 장점은 <strong>파라미터를 어떻게 바꿀지 고민하지 않아도 된다</strong> 는 것이다. 또한 실험이 언제 끝나는지 일일이 확인하지 않아도 되기 때문에 실험을 돌려놓은 다음에는 이를 <strong>완전히 잊은 채로 다른 일에 집중할 수 있다</strong>. 실제로 그렇게 여러 모델을 구현하고 실험하고를 반복했고, 따라서 작업 효율을 극대화시킬 수 있었다.</p>
+
+<h1 id="6-baseline-code">6. Baseline Code</h1>
+
+<p>첫 날, 대회가 시작하자마자 Baseline 코드 분석부터 시작했다. 먼저 기존 세팅 그대로 학습을 돌려서 제출해보았다. 1라운드에서 Baseline 코드의 버그만 고쳐서 돌려도 성능이 올라갔었기 때문에  혹시 이번 코드에도 사소한 버그가 있는지 확인했다. 아주 사소하지만 <code class="language-plaintext highlighter-rouge">dataset.py</code>에 padding을 하는 부분에서 <code class="language-plaintext highlighter-rouge">title</code>과 <code class="language-plaintext highlighter-rouge">content</code> 를 padding하는 길이를 설정해주는 부분에 오타가 있었다. 이 부분을 고쳐주자 미세하게 성능이 향상되었다. 사실 문제를 출제하는 사람들의 실수를 할 수 있기 때문에 앞으로 다른 대회에서도 맨 처음 주어진 baseline 코드를 먼저 꼼꼼히 확인하는 것도 좋은 습관이라도 생각한다.</p>
+
+<h1 id="7-data-augmentation">7. Data Augmentation</h1>
+
+<p>사실 딥러닝에서 성능 변화에 가장 큰 영향을 주는 것은 <strong>데이터</strong> 이다. 따라서 우리도 데이터를 건드려보지 않을 수 없었는데, 이미 숫자로 인코딩되어 주어졌기 때문에 데이터를 건드리는 것이 쉽지는 않았다. <strong>기존의 데이터를 Augment해서 학습시키는 방법</strong> 과 <strong>Data Imbalance를 해결하는 방법</strong> 두 가지의 방향으로 문제를 해결하려고 했고, 고민 끝에 우리가 시도해본 방법은 다음과 같다.</p>
+
+<h3 id="data-imbalance">Data Imbalance</h3>
+
+<ul>
+  <li>Weighted Sampler ⭐️
+    <ul>
+      <li>가장 효과가 좋았던 방법이다.</li>
+      <li>Batch마다 Spam과 Ham이 1:1비율로 학습되도록, 더 적은 비율의 데이터에 Weight를 주어서 학습하는 방법이다.</li>
+      <li>Pytorch에는 따로 구현된 모듈이 없어서 구글링을 통해 해당 <a href="https://discuss.pytorch.org/t/balanced-sampling-between-classes-with-torchvision-dataloader/2703/8">pytorch discussion page</a> 를 참고하여 <code class="language-plaintext highlighter-rouge">Weigthed Sampler</code> 를 구현하였다. (혹시 코드가 필요하신 분은 프로젝트 <a href="https://github.com/boychaboy/NAVER-AI-RUSH-2020-SPAM">GitHub</a>를 참고하세요 )</li>
+    </ul>
+  </li>
+  <li>Validation data distribution
+    <ul>
+      <li>Test data의 distribution이 1:1일 것이라는 예상으로 출발하였다.</li>
+      <li>실제로 Validation data의 분포를 1:1로 맞추어서 평가하니 Validation Accuracy와 Test Accuracy가 비례하여 측정되었다.</li>
+    </ul>
+  </li>
+</ul>
+
+<h3 id="data-augment">Data Augment</h3>
+
+<ul>
+  <li>Remove <UNK>
+</UNK>    <ul>
+      <li>기존 데이터 + <UNK>를 제거한 데이터로 데이터를 두배해서 학습시켰다.</UNK></li>
+      <li>성능이 오히려 떨어졌다 👎</li>
+    </ul>
+  </li>
+  <li>Double Data(Title + Content &amp; Content + Title)
+    <ul>
+      <li>기존 데이터는 제목 + 본문 형태인데, 이것과 본문 + 제목으로 순서를 바꾼 데이터를 더하여 데이터를 두배해서 학습시켰다.</li>
+      <li>성능은 그대로였고 수렴만 두 배로 빨라졌다 : <strong>단순히 데이터를 두번 본 효과가 났다</strong>.</li>
+    </ul>
+  </li>
+</ul>
+
+<h1 id="8-마치며">8. 마치며…</h1>
+
+<p><img src="./img/leader.png" alt="leaderboard" /></p>
+
+<p>대회 마지막날까지 조마조마했지만 다행히도 결과는 1등이었다. 3주 가량 동안 대회를 진행하면서 잘 했던 것과 아쉬웠던 것을 정리해보았다.</p>
+
+<h3 id="잘-한-것">잘 한 것</h3>
+
+<p>지나고 보니 역시 <strong>NSML에서 돌아가는 앙상블 코드</strong><sup id="fnref:3" role="doc-noteref"><a href="#fn:3" class="footnote">3</a></sup> 를 미리 첫 주차에 작성했던 것이 현명한 선택이었다. 앙상블을 하면 성능이 오를 것이라는 믿음 덕분에 2주차까지 여유롭게 다양한 모델로 실험을 할 수 있었기 때문이다. 두번째로 Hyperparameter Fine-tuning을 쉽게 할 수 있는 <strong>스크립트를 작성했던 것</strong> 도 시간 절약에 큰 도움이 되었다. <strong>Notion</strong> 툴을 사용해서 팀원과 협업하고 프로젝트 진행 과정과 실험 결과를 쉽게 공유한 것도 좋았다.</p>
+
+<h3 id="아쉬웠던-것">아쉬웠던 것</h3>
+
+<ul>
+  <li>실험 결과를 자동으로 기록하고 정리하는 템플릿을 쓰지 못한 것
+    <ul>
+      <li><strong>Tensorboard</strong> 와 같은 툴을 활용하면 내가 돌린 실험 결과를 자동으로 기록하고 분류해주는데, NSML에 기본적으로 기록해주는 기능이 있어서 이를 구현하지 않았다. 하지만 NSML 웹으로 실험 결과를 분석하기에는 역부족이었고 결국 일일이 노션에 표를 만들어서 기록하게 되었다. 물론 기록하는 과정에서 한 번 더 정리할 수 있어서 좋았지만, 실험 결과가 쌓일 수록 기록을 안하고 머릿속에 기억하려고 하는 내 자신을 발견하였다<del>(너어어무 귀찮더라)</del>. 다음에는 시간을 꽤 투자하더라도 대회 초반에 실험 결과 기록 자동화를 꼭 구현해야겠다.</li>
+    </ul>
+  </li>
+  <li>데이터를 Caching 하지 않은 것
+    <ul>
+      <li>NSML을 쓰는 것이 아니라면 데이터를 Tensor로 변환해서 Caching해놓는 코드를 꼭 구현해야겠다. <strong>매번 실험을 돌릴 때마다 dataload를 하는 데에 걸리는 시간이 티끌같지만 모이면 태산이다.</strong></li>
+    </ul>
+  </li>
+</ul>
+
+<p>사실 가장 잘 한 일은 본 대회에 출전한 것이다. 이렇게까지 좋은 결과를 얻게될 줄은 생각 못했는데, 정말 유익하고 보람찬 대회였다. 혹시 이듬 해 대회 출전을 고민중인 독자가 있다면 꼭 출전할 것을 추천하는 바이다.</p>
+
+<div class="footnotes" role="doc-endnotes">
+  <ol>
+    <li id="fn:1" role="doc-endnote">
+      <p>텍스트 분류(Text Classification)는 텍스트를 입력으로 받아, 텍스트가 어떤 종류의 범주(Class)에 속하는지를 구분하는 작업을 구합니다. 가령, 여러분이 스팸 메일 분류를 하고자 한다고 합시다. 스팸 메일 분류는 일반 메일과 스팸 메일이라는 두 개의 범주를 정해놓고 입력받은 텍스트를 두 개의 클래스 중 하나로 분류하는 작업이 될 것입니다. <a href="#fnref:1" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:2" role="doc-endnote">
+      <p>NSML은 네이버가 개발한 연구에 불필요한 작업들을 제거하고, GPU 자원의 효율적인 사용을 위해 개발된 MLaaS (Machine Learning as a Service), 클라우드 플랫폼입니다. 자세한 내용은 <a href="https://n-clair.github.io/vision-docs/_build/html/ko_KR/index.html">NSML Documentation</a> 을 참고하세요. <a href="#fnref:2" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+    <li id="fn:3" role="doc-endnote">
+      <p>해당 코드는 <a href="https://github.com/boychaboy/NAVER-AI-RUSH-2020-SPAM">GitHub Repository</a> 에 구현되어 있습니다. 필요하신 분은 참고하세요. <a href="#fnref:3" class="reversefootnote" role="doc-backlink">&#8617;</a></p>
+    </li>
+  </ol>
+</div>
+:ET

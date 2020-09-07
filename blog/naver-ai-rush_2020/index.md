@@ -7,7 +7,7 @@ blog: true
 text: true
 author: "boychaboy"
 post-header: true
-header-img: "img/thumb.png"
+header-img: "img/header.png"
 order: 1
 ---
 

@@ -1,0 +1,15 @@
+I"M<h1 id="0-ai-rush란">0. AI RUSH란?</h1>
+
+<p>Naver에서 기획한 <a href="https://campaign.naver.com/airush/">AI 프로젝트 챌린지</a>로 2020년 7월 13일부터 8월 27일까지 진행되었다. 서류 심사 그리고 코딩테스트를 거쳐야 본격적인 AI 과제에 참여할 수 있었다. AI 과제는 1차, 2차로 나누어 진행됐다. 1차는 NLP와 Vision 과제가 하나씩 나왔는데, 각 과제 상위 25명만 2차에 진출할 수 있었다. 2차 과제는 NLP와 Vision 뿐만아니라 Speech, Anomaly detection 등 다양한 주제로 구성되어있었다. 필자는 1차에서 NLP 과제를 수행했는데 운 좋게도 2라운드에 진출하였고, 2차에서 <em>공수래공수거</em> 라는 팀이름으로 Grammatical error correction와 Spam mail classification 두 가지 과제에 참여했다. 결국 최종 결과로 <strong>GEC 과제에서 3등</strong>, <strong>Spam 과제에서 1등</strong>을 기록했다. 이 포스팅에서는 정신 없이 앞만 보고 달려온 한달 남짓을 되돌아보면서 우리가 SPAM 과제에 어떻게 접근했는지를 정리해보았다.</p>
+
+<h1 id="1-스팸-메일-분류">1. 스팸 메일 분류</h1>
+
+<p>메일의 제목과 본문을 보고 스팸 여부를 판정하는 과제이다. 학습 데이터는 총 <code class="language-plaintext highlighter-rouge">131,880</code>개로, 이 중 <code class="language-plaintext highlighter-rouge">7,310</code>개가 스팸 메일이었다. 메일은 제목과 본문이 구분 되어있는 형태였으며 예시는 아래와 같다.</p>
+
+<div class="language-plaintext highlighter-rouge"><div class="highlight"><pre class="highlight"><code>13743, 11092, 18708, 6981[TAB]8346, 5532, 11618, 9642, 0, 9042, 10448, 3374, 0, 19551, 7800, 3374, 0, 0, 5213, 3374, 0, 17743, 0, 0, 5213, 3374, 4791, 0, 0, 8578, 0, 12033, 3911, 3374, 0, 19551, 0, 0, 5574, 3374, 0, 15427, 3560, 1301, 8542, 9178, 18100, 3560, 13854, 8542, 5730, 7022, 5574, 11287, 6981
+</code></pre></div></div>
+
+<p>메일은 위와 같이 숫자의 형태로 인코딩되어 있었고, 제목과 본문이 <TAB>키로 구분되어 있었다. 또한 데이터의 특징을 통해 '6981'이 온점, '0'이 <UNK>라는 것도 알 수 있었다. 그리고 당연히 각 데이터마다 0(ham) 또는 1(spam)로 구분된 정답 label이 있다.</UNK></TAB></p>
+
+<p>평가는 F1 score 통해서 진행되었다. 기본적으로 주어진 Baseline의 성능은 Validation이 <code class="language-plaintext highlighter-rouge">0.937</code>, Test가 <code class="language-plaintext highlighter-rouge">0.815</code>이였다. 본문이 각각 GRU를 통과하고 마지막에 Linear layer를 거쳐서 예측을 하는 아주 간단한 구조의 모델이었다. 매주 새로운 Test set에 대해서 평가가 진행되었고, 우리는 약 3주에 걸쳐서 이 성능을 최대한으로 끌어내야 했다. 결국 최종 제출 당시 Validation은 <code class="language-plaintext highlighter-rouge">0.974</code>, Test는 <code class="language-plaintext highlighter-rouge">0.8445</code> 를 기록하면서 1등으로 대회를 마무리했다.</p>
+:ET

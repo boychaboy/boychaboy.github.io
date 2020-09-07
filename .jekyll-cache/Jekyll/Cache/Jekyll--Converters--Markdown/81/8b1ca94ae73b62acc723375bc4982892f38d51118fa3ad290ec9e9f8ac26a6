@@ -1,0 +1,51 @@
+I"o<h1 id="0-ai-rush란">0. AI RUSH란?</h1>
+
+<p>Naver에서 기획한 <a href="https://campaign.naver.com/airush/">AI 프로젝트 챌린지</a>로 2020년 7월 13일부터 8월 27일까지 진행되었다. 서류 심사 그리고 코딩테스트를 거쳐야 본격적인 AI 과제에 참여할 수 있었다. AI 과제는 1차, 2차로 나누어 진행됐다. 1차는 NLP와 Vision 과제가 하나씩 나왔는데, 각 과제 상위 25명만 2차에 진출할 수 있었다. 2차 과제는 NLP와 Vision 뿐만아니라 Speech, Anomaly detection 등 다양한 주제로 구성되어있었다. 필자는 1차에서 NLP 과제를 수행했는데 운 좋게도 2라운드에 진출하였고, 2차에서 <em>공수래공수거</em> 라는 팀이름으로 Grammatical error correction와 Spam mail classification 두 가지 과제에 참여했다. 결국 최종 결과로 <strong>GEC 과제에서 3등</strong>, <strong>Spam 과제에서 1등</strong>을 기록했다. 이 포스팅에서는 정신 없이 앞만 보고 달려온 한달 남짓을 되돌아보면서 우리가 SPAM 과제에 어떻게 접근했는지를 정리해보았다.</p>
+
+<h1 id="1-스팸-메일-분류">1. 스팸 메일 분류</h1>
+
+<p>메일의 제목과 본문을 보고 스팸 여부를 판정하는 과제이다. 학습 데이터는 총 <code class="language-plaintext highlighter-rouge">131,880</code>개로, 이 중 <code class="language-plaintext highlighter-rouge">7,310</code>개가 스팸 메일이었다. 메일은 제목과 본문이 구분 되어있는 형태였으며 아래와 같이 네이버에서 사용하는 토크나이저에 의해서 숫자로 인코딩되어있었다. 제목과 본문은 <TAB>키로 구분되어 있었고 데이터를 관찰한 결과 '6981'이 온점, '0'이 <UNK>라는 것도 알 수 있었다. 그리고 각 데이터마다 0(ham) 또는 1(spam)로 구분된 정답 label이 있었다.</UNK></TAB></p>
+
+<p><img src="./img/data.png" alt="Data Structure" /></p>
+
+<p>평가는 F1 score 통해서 진행되었다. 기본적으로 주어진 Baseline의 성능은 Validation이 <code class="language-plaintext highlighter-rouge">0.937</code>, Test가 <code class="language-plaintext highlighter-rouge">0.815</code>이였다. 본문이 각각 GRU를 통과하고 마지막에 Linear layer를 거쳐서 예측을 하는 아주 간단한 구조의 모델이었다. 매주 새로운 Test set에 대해서 평가가 진행되었고, 우리는 약 3주에 걸쳐서 이 성능을 최대한으로 끌어내야 했다. 결국 최종 제출 당시 Validation은 <code class="language-plaintext highlighter-rouge">0.974</code>, Test는 <code class="language-plaintext highlighter-rouge">0.8445</code> 를 기록하면서 1등으로 대회를 마무리했다. 아래는 Baseline 모델의 구조이다.</p>
+
+<p><img src="./img/model.png" alt="Model Structure" /></p>
+
+<h1 id="2-계획-세우기">2. 계획 세우기</h1>
+
+<p>시간이 무한정 주어지지 않았으므로 해볼 수 있는 것들의 우선순위를 정해야 했다. 우리 팀이 생각했을 때 꼭 해야할 것들은 다음과 같았다.</p>
+
+<ul>
+  <li>Baseline code
+    <ul>
+      <li>기본적으로 주어진 Baseline 코드가 어떻게 짜여있는지, 코드에 오류는 없는지 확인한다.</li>
+    </ul>
+  </li>
+  <li>Data Augmentation
+    <ul>
+      <li>데이터를 추가로 확보할 수 는 없는 상황이므로, 기존의 데이터에 Noise를 추가하는 등 데이터를 augment 해서 사용할 수 있는 방법을 적용해본다.</li>
+    </ul>
+  </li>
+  <li>Modeling
+    <ul>
+      <li>기존에 구현되어있는 GRU기반 Baseline 이외에 다양한 모델들을 적용하여 실험해본다.</li>
+    </ul>
+  </li>
+  <li>Ensemble ⚡️
+    <ul>
+      <li>Competition 가장 중요하다고도 할 수 있는 모델 앙상블을 NSML 환경에 적용할 수 있도록 구현한다.</li>
+    </ul>
+  </li>
+  <li>Hyperparamter Tuning
+    <ul>
+      <li>남는 시간과 GPU를 효율적으로 활용해서 최대한 기존 성능을 끌어올릴 수 있는 파라미터를 찾는다.</li>
+    </ul>
+  </li>
+</ul>
+
+<p>결론적으로 말하면 성능 향상에 가장 도움이 되었던 순서는 <strong>Modeling - Ensemble - Hyperparamter Tuning - Baseline Code - Data Augmentation</strong> 였고, 아래부터는 이 순서대로 어떻게 프로젝트를 진행했는지 하나씩 살펴보도록 하겠다.</p>
+
+<h1 id="3-modeling">3. Modeling</h1>
+
+:ET

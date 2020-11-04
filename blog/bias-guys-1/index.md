@@ -12,7 +12,7 @@ order: 2
 ---
 # Different approches to measure bias in word embeddings
 
-![header](header.png)
+![header](../img/header.png)
 
 It is ground truth that we should figure out ways to detect and mitigate "unintended" bias in machine learning. I don't want to waste my energy here to argue about this idea(if your curious, check out this [paper](https://arxiv.org/abs/2005.14050)). Instead, I want to introduce you several different approaches to **measures such biases in word embeddings**. 
 
@@ -24,7 +24,7 @@ In general, there are two types of word embeddings : "Uncontextualized" and "Con
 
 Man is to computer programmer as woman is to homemaker : Debiasing Word Embeddings
 
-![1](1.png)
+![1](../img/1.png)
 
 ### Multi-class
 

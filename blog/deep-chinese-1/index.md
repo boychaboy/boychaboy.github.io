@@ -7,7 +7,7 @@ blog: true
 text: true
 author: "boychaboy"
 post-header: true
-header-img: "img/header.jpg"
+header-img: "img/header.jpeg"
 order: 3
 ---
 ### 들어가며...

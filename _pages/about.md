@@ -2,24 +2,21 @@
 layout: about
 title: about
 permalink: /
-subtitle: <a href='#'>Affiliations</a>. Address. Contacts. Moto. Etc.
+subtitle: <a href='https://www.navercorp.com/en'>Research Engineer @NAVER</a>
 
 profile:
   align: right
-  image: prof_pic.jpg
+  image: prof_pic.jpeg
   image_circular: false # crops the image to make it circular
   address: >
-    <p>555 your office number</p>
-    <p>123 your address street</p>
-    <p>Your City, State 12345</p>
+    <p>Yucca Valley, United States</p>
+    <p>Oct 14, 2022</p>
 
 news: true  # includes a list of news items
 selected_papers: true # includes a list of papers marked as "selected={true}"
 social: true  # includes social icons at the bottom of the page
 ---
 
-Write your biography here. Tell the world about yourself. Link to your favorite [subreddit](http://reddit.com). You can put a picture in, too. The code is already in, just name your picture `prof_pic.jpg` and put it in the `img/` folder.
+Younghoon is a research engineer at **NAVER Corporation**. He is currently working at team *OCEAN*, improving search engine. Prior to NAVER, he was at KAIST [U&I Lab](https://uilab.kr), working with professor [Alice Oh](https://aliceoh9.github.io) on Korean offensive language dataset. He also recieved M.S. in *Computer Science*, B.A. in *Chinese Culture*, and B.S in *Computer Science* at Sogang University.
 
-Put your address / P.O. box / other info right below your picture. You can also disable any these elements by editing `profile` property of the YAML header of your `_pages/about.md`. Edit `_bibliography/papers.bib` and Jekyll will render your [publications page](/al-folio/publications/) automatically.
-
-Link to your social media connections, too. This theme is set up to use [Font Awesome icons](http://fortawesome.github.io/Font-Awesome/) and [Academicons](https://jpswalsh.github.io/academicons/), like the ones below. Add your Facebook, Twitter, LinkedIn, Google Scholar, or just disable all of them.
+His research interests lie in Natural Language Processing (NLP) and Computational Social Science (CSS). He is interested in (1) analyzing how human biases influence dataset creation and (2) investigating multilingual models to alleviate allocational and representational harm from NLP systems. He aims to design inclusive and trustworthy systems to assist and collaborate with humans.

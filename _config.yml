@@ -110,20 +110,24 @@ bing_site_verification:  # out your bing-site-verification ID (Bing Webmaster)
 
 # -----------------------------------------------------------------------------
 # Blog
-# --------------------------------------------------------------------y---------
+# -----------------------------------------------------------------------------
 
-# blog_name: al-folio # blog_name will be displayed in your blog page
-# blog_nav_title: Blog # your blog must have a title for it to be displayed in the nav bar
-# blog_description: a simple whitespace theme for academics
-# permalink: /blog/:year/:title/
+blog_name: Cheatsheet # blog_name will be displayed in your blog page
+blog_nav_title: Blog # your blog must have a title for it to be displayed in the nav bar
+blog_description: Taking notes to forget
+permalink: /blog/:year/:title/
 
-# # Pagination
-# pagination:
-#   enabled: true
+# Pagination
+pagination:
+  enabled: true
 
-# # Giscus comments (RECOMMENDED)
-# # Follow instructions on https://giscus.app/ to setup for your repo to fill out
-# # the information below.
+related_blog_posts:
+  enabled: true
+  max_related: 5
+
+# Giscus comments (RECOMMENDED)
+# Follow instructions on https://giscus.app/ to setup for your repo to fill out
+# the information below.
 # giscus:
 #   repo: alshedivat/al-folio      # <your-github-user-name>/<your-github-repo-name>
 #   repo_id: MDEwOlJlcG9zaXRvcnk2MDAyNDM2NQ==
@@ -137,13 +141,13 @@ bing_site_verification:  # out your bing-site-verification ID (Bing Webmaster)
 #   emit_metadata: 0
 #   lang: en
 
-# # Disqus comments (DEPRECATED)
+# Disqus comments (DEPRECATED)
 # disqus_shortname: al-folio # put your disqus shortname
-# # https://help.disqus.com/en/articles/1717111-what-s-a-shortname
+# https://help.disqus.com/en/articles/1717111-what-s-a-shortname
 
-# # External sources.
-# # If you have blog posts published on medium.com or other exteranl sources,
-# # you can display them in your blog by adding a link to the RSS feed.
+# External sources.
+# If you have blog posts published on medium.com or other external sources,
+# you can display them in your blog by adding a link to the RSS feed.
 # external_sources:
 #   - name: medium.com
 #     rss_url: https://medium.com/@al-folio/feed

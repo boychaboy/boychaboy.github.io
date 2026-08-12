@@ -1,0 +1,54 @@
+                                                Younghun Jeong
+                                           hoon2j@gmail.com / (+82)10-8520-8840
+
+
+Core Expertise
+AI Research Engineer specializing in large language models and production-oriented conversational AI, with experience in retrieval-
+augmented generation, structured query planning, multi-hop question answering, and responsible NLP. Focused on building grounded,
+reliable agentic systems for search and commerce.
+Work Experience
+AI Research Engineer                                                                                        Dec. 2022 – Present
+NAVER Search                                                                                                      Seongnam, Korea
+• Research and develop LLM-powered conversational systems for search, with an emphasis on retrieval-augmented generation, query
+  planning, response grounding, and production quality.
+• Contributed to the launches of Cue:, AI Briefing, and Shopping Agent, delivering conversational and agentic AI experiences across
+  search and commerce.
+• Co-developed Tree-of-Question, a structured retrieval framework for complex Korean question answering, published at the NAACL
+  2024 Industry Track.
+Research Associate                                                                                         Feb. 2022 – Sep. 2022
+KAIST, Users & Information Lab                                                                                       Daejeon, Korea
+• Researched fairness and responsible NLP with Prof. Alice Oh, focusing on culturally and linguistically grounded offensive-language
+  modeling.
+• Led the construction of KOLD, a dataset of 40,429 Korean comments with hierarchical labels, target annotations, context, and
+  offensive spans; released the data and baseline models publicly.
+Research Associate                                                                                  Sep. 2021 – Dec. 2021
+Sogang University, Natural Language Processing Lab                                                              Seoul, Korea
+• Contributed to KLUE, a Korean language understanding benchmark spanning eight NLU tasks, including dependency parsing, data
+  collection, ethical review, and language-model training.
+Education
+Sogang University                                                                                             Aug. 2019 – Aug. 2021
+M.S. in Computer Science and Engineering; advised by Prof. Jungyun Seo                                                   Seoul, Korea
+Sogang University                                                                                             Feb. 2013 – Aug. 2019
+B.A. in Chinese Culture; B.S. in Computer Science and Engineering                                                        Seoul, Korea
+• One-year exchange at Tsinghua University, Beijing, China; two-year leave of absence for military service.
+Selected Publications
+Tree-of-Question: Structured Retrieval Framework for Korean Question Answering Systems.
+Dongyub Lee, Younghun Jeong, Hwa-Yeon Kim, et al. NAACL 2024 Industry Track, pp. 406–418. [paper]
+KOLD: Korean Offensive Language Dataset.
+Younghun Jeong, Juhyun Oh, Jongwon Lee, Jaimeen Ahn, Jihyung Moon, Sungjoon Park, and Alice Oh. EMNLP 2022, pp.
+10818–10833. [paper] [data]
+KLUE: Korean Language Understanding Evaluation.
+Sungjoon Park, Jihyung Moon, Sungdong Kim, et al., including Younghun Jeong. NeurIPS 2021 Datasets and Benchmarks Track.
+[paper] [data]
+Honors and Awards
+Winner, Track 4, Ninth Dialog System Technology Challenge (DSTC9)                                                                2020
+Winner of $18,000, NAVER AI RUSH                                                                                                 2020
+Grand Prize, NLP Competition, National Institute of Korean Language                                                              2019
+Technical Skills
+AI / NLP              Large Language Models, Retrieval-Augmented Generation, Agentic AI, Query Planning, Multi-hop QA,
+                      Conversational AI, Responsible AI
+Programming           Python, C/C++, Java, Bash
+ML / Data             PyTorch, Hugging Face Transformers, Scikit-learn, NumPy, Pandas
+Engineering           Git, Docker, Jupyter, TensorBoard, Scrapy, BeautifulSoup
+Languages             Korean (native), English (fluent; TOEFL iBT 106), Chinese (advanced; HSK Level 6)
+

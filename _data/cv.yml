@@ -1,3 +1,16 @@
+- title: Experience
+  type: time_table
+  contents:
+    - title: Research Engineer
+      institution: NAVER Corporation
+      year: 2022-NOW
+    - title: Research Associate
+      institution: Korea Advanced Institute of Science and Technology (KAIST)
+      year: 2022
+      description:
+        - Advised by <i>Alice Oh</i>
+        - Fairness in NLP, Korean Offensive Language Dataset
+
 - title: Education
   type: time_table
   contents:
@@ -17,19 +30,6 @@
       year: 2010 - 2013
       description:
         - Chinese Major
-
-- title: Experience
-  type: time_table
-  contents:
-    - title: Research Engineer
-      institution: NAVER Corporation
-      year: 2022-NOW
-    - title: Research Associate
-      institution: Korea Advanced Institute of Science and Technology (KAIST)
-      year: 2022
-      description:
-        - Advised by <i>Alice Oh</i>
-        - Fairness in NLP, Korean Offensive Language Dataset
 
 - title: Honors and Awards
   type: time_table

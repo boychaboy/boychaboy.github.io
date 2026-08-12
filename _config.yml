@@ -3,7 +3,7 @@
 # -----------------------------------------------------------------------------
 
 title: blank # the website title (if blank, full name will be used instead)
-first_name: Younghoon
+first_name: Younghun
 middle_name: 
 last_name: Jeong
 email: hoon2j@gmail.com
@@ -72,7 +72,7 @@ twitter_username: # your Twitter handle
 mastodon_username: # your mastodon instance+username in the format instance.tld/@username
 linkedin_username: boychaboy
 telegram_username: # your Telegram user name
-scholar_userid: G3xl1HAAAAAJ&hl
+scholar_userid: G3xl1HAAAAAJ
 semanticscholar_id: # your Semantic Scholar ID
 whatsapp_number: # your WhatsApp number (full phone number in international format. Omit any zeroes, brackets, or dashes when adding the phone number in international format.)
 orcid_id: # your ORCID ID
@@ -253,7 +253,7 @@ display_tags: ['formatting', 'images', 'links', 'math', 'code'] # this tags will
 scholar:
 
   last_name: [Jeong]
-  first_name: [Younghoon]
+  first_name: [Younghun]
 
   style: apa
   locale: en
@@ -308,6 +308,7 @@ imagemagick:
     - assets/img/
   input_formats:
     - ".jpg"
+    - ".JPG"
     - ".jpeg"
     - ".png"
     - ".tiff"

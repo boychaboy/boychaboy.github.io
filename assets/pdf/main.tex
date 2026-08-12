@@ -1,0 +1,118 @@
+\documentclass[10pt,letterpaper]{article}
+
+\usepackage[T1]{fontenc}
+\usepackage[usenames,dvipsnames]{color}
+\usepackage[colorlinks=true,urlcolor=MidnightBlue]{hyperref}
+\usepackage{geometry}
+\usepackage{enumitem}
+\usepackage{tabularx}
+\usepackage{array}
+\usepackage{microtype}
+
+\geometry{left=0.50in,right=0.50in,top=0.50in,bottom=0.50in}
+\pagestyle{empty}
+\setlength{\parindent}{0pt}
+\setlength{\tabcolsep}{0pt}
+\setlist[itemize]{leftmargin=1.2em,itemsep=2.5pt,topsep=3.5pt,parsep=0pt,partopsep=0pt}
+
+\newcolumntype{Y}{>{\raggedright\arraybackslash}X}
+\newcommand{\sectionheading}[1]{%
+  \vspace{12pt}%
+  {\fontsize{10.95}{12.5}\selectfont\textsc{#1}}\par
+  \vspace{1.5pt}\hrule\vspace{6pt}%
+}
+\newcommand{\role}[4]{%
+  \begin{tabularx}{\textwidth}{@{}Y>{\raggedleft\arraybackslash}p{1.75in}@{}}
+    \textbf{#1} & \textbf{#2} \\
+    \textit{#3} & \textit{#4}
+  \end{tabularx}%
+}
+\newcommand{\education}[4]{%
+  \begin{tabularx}{\textwidth}{@{}Y>{\raggedleft\arraybackslash}p{1.75in}@{}}
+    \textbf{#1} & \textbf{#2} \\
+    #3 & #4
+  \end{tabularx}%
+}
+\newcommand{\publication}[3]{%
+  \begin{tabularx}{\textwidth}{@{}Y>{\raggedleft\arraybackslash}p{2.50in}@{}}
+    \textbf{#1} & \textit{#2}
+  \end{tabularx}\par\vspace{-1pt}%
+  #3\par
+}
+
+\begin{document}
+
+\begin{center}
+  {\LARGE\textsc{Younghun Jeong}}\\[3pt]
+  \href{mailto:hoon2j@gmail.com}{hoon2j@gmail.com}
+  \enspace/\enspace
+  \texttt{(+82)10-8520-8840}\\[5pt]
+\end{center}
+
+\fontsize{10}{12.2}\selectfont
+\vspace{0pt}
+\sectionheading{Core Expertise}
+\textbf{AI Research Engineer} specializing in large language models and production-oriented conversational AI, with experience in retrieval-augmented generation, structured query planning, multi-hop question answering, and responsible NLP. Focused on building grounded, reliable agentic systems for search and commerce.
+
+\sectionheading{Work Experience}
+\role{AI Research Engineer}{Dec. 2022 -- Present}{NAVER Search}{Seongnam, Korea}
+\begin{itemize}
+  \item Research and develop LLM-powered conversational systems for search, with an emphasis on retrieval-augmented generation, query planning, response grounding, and production quality.
+  \item Contributed to the launches of \href{https://cue.search.naver.com}{Cue:}, \href{https://blog.naver.com/naver_search/223807628464}{AI Briefing}, and \href{https://mkt.naver.com/shopping_agent}{Shopping Agent}, delivering conversational and agentic AI experiences across search and commerce.
+  \item Co-developed \href{https://aclanthology.org/2024.naacl-industry.35/}{Tree-of-Question}, a structured retrieval framework for complex Korean question answering, published at the NAACL 2024 Industry Track.
+\end{itemize}
+
+\vspace{8pt}
+\role{Research Associate}{Feb. 2022 -- Sep. 2022}{KAIST, Users \& Information Lab}{Daejeon, Korea}
+\begin{itemize}
+  \item Researched fairness and responsible NLP with Prof. Alice Oh, focusing on culturally and linguistically grounded offensive-language modeling.
+  \item Led the construction of KOLD, a dataset of 40,429 Korean comments with hierarchical labels, target annotations, context, and offensive spans; released the data and baseline models publicly.
+\end{itemize}
+
+%\vspace{4pt}
+%\role{Research Associate}{Sep. 2021 -- Dec. 2021}{Sogang University, Natural Language Processing Lab}{Seoul, Korea}
+%\begin{itemize}
+%  \item Contributed to KLUE, a Korean language understanding benchmark spanning eight NLU tasks, including dependency parsing, data collection, ethical review, and language-model training.
+%\end{itemize}
+
+\sectionheading{Education}
+\education{Sogang University}{Aug. 2019 -- Aug. 2021}{M.S. in Computer Science and Engineering; advised by Prof. Jungyun Seo}{Seoul, Korea}
+\vspace{8pt}
+\education{Sogang University}{Feb. 2013 -- Aug. 2019}{B.A. in Chinese Culture; B.S. in Computer Science and Engineering}{Seoul, Korea}
+\begin{itemize}
+  \item One-year exchange at Tsinghua University, Beijing, China; two-year leave of absence for military service.
+\end{itemize}
+
+\sectionheading{Selected Publications}
+\publication
+  {Tree-of-Question: Structured Retrieval Framework for Korean Question Answering Systems.}
+  {NAACL Industry Track, 2024}
+  {Dongyub Lee, \textbf{Younghun Jeong}, Hwa-Yeon Kim, et al. pp. 406--418. \href{https://aclanthology.org/2024.naacl-industry.35/}{[paper]}}
+
+\vspace{5.5pt}
+\publication
+  {KOLD: Korean Offensive Language Dataset.}
+  {EMNLP, 2022}
+  {\textbf{Younghun Jeong}, Juhyun Oh, Jongwon Lee, Jaimeen Ahn, Jihyung Moon, Sungjoon Park, and Alice Oh. pp. 10818--10833. \href{https://aclanthology.org/2022.emnlp-main.744/}{[paper]} \href{https://github.com/boychaboy/KOLD}{[data]}}
+
+\vspace{5.5pt}
+\publication
+  {KLUE: Korean Language Understanding Evaluation.}
+  {NeurIPS Datasets \& Benchmarks, 2021}
+  {Sungjoon Park, Jihyung Moon, Sungdong Kim, et al., including \textbf{Younghun Jeong}. \href{https://openreview.net/forum?id=q-8h8-LZiUm}{[paper]} \href{https://github.com/KLUE-benchmark/KLUE}{[data]}}
+
+\sectionheading{Honors and Awards}
+\begin{tabularx}{\textwidth}{@{}Y>{\raggedleft\arraybackslash}p{0.7in}@{}}
+  \textbf{Winner, Track 4}, Ninth Dialog System Technology Challenge (DSTC9) & 2020 \\
+  \textbf{Winner of \$18,000}, NAVER AI RUSH & 2020 \\
+  \textbf{Grand Prize}, NLP Competition, National Institute of Korean Language & 2019
+\end{tabularx}
+
+\sectionheading{Technical Skills}
+\begin{tabularx}{\textwidth}{@{}>{\bfseries}p{1.25in}Y@{}}
+  AI / NLP & Large Language Models, Retrieval-Augmented Generation, Agentic AI, Multi-hop QA, Responsible AI \\
+  Programming & Python, C/C++ \\
+  Languages & Korean (native), English (fluent; TOEFL iBT 106), Chinese (advanced; HSK Level 6)
+\end{tabularx}
+
+\end{document}

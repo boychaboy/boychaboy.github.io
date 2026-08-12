@@ -99,8 +99,10 @@ blockquote {
     margin-bottom: 5px;
     margin-top: 5px;
     font-family: monospace;
+    font-size: 0.75rem;
+    line-height: 1.25;
     p {
-      display: inline-block;
+      display: block;
       margin: 0;
     }
   }
@@ -115,9 +117,6 @@ blockquote {
 @media (min-width: 576px) {
   .profile {
     width: 30%;
-    .address {
-      p { display: block; }
-    }
   }
 }
 

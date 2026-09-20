@@ -8,11 +8,11 @@ middle_name:
 last_name: Jeong
 email: hoon2j@gmail.com
 description: > # the ">" symbol means to ignore newlines until "footer_text:"
-  A simple, whitespace theme for academics. Based on [*folio](https://github.com/bogoli/-folio) design.
+  Younghun Jeong is an AI Research Engineer at NAVER Search working on production LLM, retrieval, and agent systems for search and commerce.
 footer_text: >
   Powered by <a href="https://jekyllrb.com/" target="_blank">Jekyll</a> with <a href="https://github.com/alshedivat/al-folio">al-folio</a> theme.
   Hosted by <a href="https://pages.github.com/" target="_blank">GitHub Pages</a>.
-keywords: jekyll, jekyll-theme, academic-website, portfolio-website  # add your own keywords or leave empty
+keywords: large language models, retrieval augmented generation, RAG, agentic AI, search, NLP, NAVER  # add your own keywords or leave empty
 
 lang: en # the language of your site (for example: en, fr, cn, ru, etc.)
 icon: boychaboy.jpeg # the emoji used as the favicon (alternatively, provide image name in /assets/img/)

@@ -9,8 +9,8 @@ profile:
   image: prof_pic2.JPG
   image_circular: false # crops the image to make it circular
   address:
-    <p>Seongnam, South Korea</p>
-    <p>Large Language Models · Search · Agentic AI</p>
+    <p>Abu Dhabi, United Arab Emirates</p>
+    <p>December 11, 2022 · EMNLP 2022</p>
 
 news: true  # includes a list of news items
 selected_papers: true # includes a list of papers marked as "selected={true}"
